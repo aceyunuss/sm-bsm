@@ -3,7 +3,7 @@ const validate = require("../utils/validation");
 const Visit = require("../models/Visit");
 
 const checkIn = async (req, res) => {
-  const required = ["user_id", "check_in", "long", "lat", "location"];
+  const required = ["user_id", "check_in", "long", "lat", "location", "tenant_id", "sub_tenant_id"];
 
   const is_body = await validate.isExist(req.body);
   if (!is_body) return response.badRequest("Body request are required", res);
@@ -26,6 +26,8 @@ const checkIn = async (req, res) => {
       attachment: attachmentFile ? attachmentFile.path : null,
       notes: req.body.notes,
       location: req.body.location,
+      tenant_id: req.body.tenant_id,
+      sub_tenant_id: req.body.sub_tenant_id,
       created_date: new Date().toISOString(),
     };
 
@@ -82,4 +84,65 @@ const checkOut = async (req, res) => {
   }
 };
 
-module.exports = { checkIn, checkOut };
+const getHistory = async (req, res) => {
+  const is_visit_id = await validate.isExist(req.params.visit_id);
+  if (!is_visit_id) return response.badRequest("Visit id is required", res);
+
+  try {
+    const check_un = await Visit.get({ visit_id: req.params.visit_id });
+
+    if (!check_un.success) return response.internalServerError("Error get history", res);
+    if (check_un.count == 0) return response.notFound("History not found", res);
+
+    return response.success("Success get history", res, check_un.data[0]);
+  } catch (error) {
+    return response.internalServerError("Error get history", res);
+  }
+};
+
+const getHistoryUser = async (req, res) => {
+  const is_user_id = await validate.isExist(req.params.user_id);
+  if (!is_user_id) return response.badRequest("User id is required", res);
+
+  try {
+    const check_un = await Visit.get({ user_id: req.params.user_id });
+    if (!check_un.success) return response.internalServerError("Error get history", res);
+    if (check_un.count == 0) return response.notFound("History not found", res);
+
+    return response.success("Success get history", res, check_un.data);
+  } catch (error) {
+    return response.internalServerError("Error get history", res);
+  }
+};
+
+const getHistoryTenant = async (req, res) => {
+  const is_tenant_id = await validate.isExist(req.params.tenant_id);
+  if (!is_tenant_id) return response.badRequest("Tenant id is required", res);
+
+  try {
+    const check_un = await Visit.get({ tenant_id: req.params.tenant_id });
+    if (!check_un.success) return response.internalServerError("Error get history", res);
+    if (check_un.count == 0) return response.notFound("History not found", res);
+
+    return response.success("Success get history", res, check_un.data);
+  } catch (error) {
+    return response.internalServerError("Error get history", res);
+  }
+};
+
+const getHistorySubTenant = async (req, res) => {
+  const is_sub_tenant_id = await validate.isExist(req.params.sub_tenant_id);
+  if (!is_sub_tenant_id) return response.badRequest("Sub tenant id is required", res);
+
+  try {
+    const check_un = await Visit.get({ sub_tenant_id: req.params.sub_tenant_id });
+    if (!check_un.success) return response.internalServerError("Error get history", res);
+    if (check_un.count == 0) return response.notFound("History not found", res);
+
+    return response.success("Success get history", res, check_un.data);
+  } catch (error) {
+    return response.internalServerError("Error get history", res);
+  }
+};
+
+module.exports = { checkIn, checkOut, getHistory, getHistoryUser, getHistoryTenant, getHistorySubTenant };

@@ -98,6 +98,16 @@ Visit.init(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    tenant_id: {
+      field: "tenant_id",
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    sub_tenant_id: {
+      field: "sub_tenant_id",
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     sequelize: db_smbsm,
