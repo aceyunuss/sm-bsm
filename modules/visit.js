@@ -1,3 +1,5 @@
+const path = require("path");
+const fs = require("fs");
 const response = require("../utils/response");
 const validate = require("../utils/validation");
 const Visit = require("../models/Visit");
@@ -145,4 +147,24 @@ const getHistorySubTenant = async (req, res) => {
   }
 };
 
-module.exports = { checkIn, checkOut, getHistory, getHistoryUser, getHistoryTenant, getHistorySubTenant };
+const getPhoto = async (req, res) => {
+  const is_visit_id = await validate.isExist(req.params.visit_id);
+  if (!is_visit_id) return response.badRequest("Visit id is required", res);
+
+  try {
+    const check = await Visit.get({ visit_id: req.params.visit_id });
+
+    if (!check.success) return response.internalServerError("Error get photo", res);
+    if (check.count == 0) return response.notFound("Visit not found", res);
+
+    const filePath = path.resolve(check.data[0].photo);
+
+    if (!fs.existsSync(filePath)) return response.notFound("Photo not found", res);
+
+    return res.sendFile(filePath);
+  } catch (error) {
+    return response.internalServerError("Error get photo", res);
+  }
+};
+
+module.exports = { checkIn, checkOut, getHistory, getHistoryUser, getHistoryTenant, getHistorySubTenant, getPhoto };
