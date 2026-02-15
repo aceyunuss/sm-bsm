@@ -29,12 +29,12 @@ router.post(
   visit.checkOut,
 );
 
+router.get("/photo/:visit_id", visit.getPhoto);
+router.get("/attachment/:visit_id", visit.getAttachment);
+
 router.get("/history/:visit_id", visit.getHistory);
 router.get("/history-by-user/:user_id", visit.getHistoryUser);
 router.get("/history-by-tenant/:tenant_id", visit.getHistoryTenant);
 router.get("/history-by-sub-tenant/:sub_tenant_id", visit.getHistorySubTenant);
-
-
-router.get("/photo/:visit_id", visit.getPhoto);
 
 module.exports = router;
