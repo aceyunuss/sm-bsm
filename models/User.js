@@ -32,11 +32,6 @@ User.init(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-    dob: {
-      field: "dob",
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-    },
     password: {
       field: "password",
       type: DataTypes.STRING(255),
@@ -62,6 +57,11 @@ User.init(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
+    role_id: {
+      field: "role_id",
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     sequelize: db_smbsm,
@@ -84,11 +84,15 @@ User.get = async (cond = {}, col = []) => {
       data: stat_find,
     };
   } catch (error) {
+    console.log('==========================START============================');
+    console.log(error);
+    console.log('===========================END=============================');
+    
     return { success: false, msg: error.message };
   }
 };
 
-User.insert = async (data) => {
+User.ins = async (data) => {
   try {
     const stat_ins = await User.create(data);
     return {
@@ -101,4 +105,17 @@ User.insert = async (data) => {
   }
 };
 
+
+User.upd = async (data, cond) => {
+  try {
+    const stat_upd = await User.update(data, { where: cond });
+
+    return {
+      success: true,
+      count: stat_upd[0],
+    };
+  } catch (error) {
+    return { success: false, msg: error.message };
+  }
+};
 module.exports = User;
