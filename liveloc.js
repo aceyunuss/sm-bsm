@@ -28,15 +28,33 @@ live.on("connection", (socket) => {
     socket.join(room);
     socket.data.role_id = role_id;
     socket.data.room = room;
+    socket.data.tenant_id = tenant_id;
 
     console.log(`Socket ${socket.id} joined room ${room} as role ${role_id}`);
   });
+
+  socket.on("watch-user", ({ user_id, tenant_id }) => {
+    if (!user_id || !tenant_id) return;
+    const userRoom = `tenant_${tenant_id}:user_${user_id}`;
+    socket.join(userRoom);
+    console.log(`Socket ${socket.id} (role ${socket.data.role_id}) watching user ${user_id}`);
+  });
+
+  socket.on("unwatch-user", ({ user_id, tenant_id }) => {
+    if (!user_id || !tenant_id) return;
+    const userRoom = `tenant_${tenant_id}:user_${user_id}`;
+    socket.leave(userRoom);
+    console.log(`Socket ${socket.id} stopped watching user ${user_id}`);
+  });
+
   socket.on("send-location", (data) => {
-    const { role_id, tenant_id, sub_tenant_id } = data;
+    const { role_id, tenant_id, sub_tenant_id, user_id } = data;
     if (role_id !== 3) return;
 
-    const room = `tenant_${tenant_id}${sub_tenant_id ? `_sub_${sub_tenant_id}` : ""}`;
-    const roomSockets = live.adapter.rooms.get(room);
+    const generalRoom = `tenant_${tenant_id}${sub_tenant_id ? `_sub_${sub_tenant_id}` : ""}`;
+    const userRoom = `tenant_${tenant_id}:user_${user_id}`;
+
+    const roomSockets = live.adapter.rooms.get(generalRoom);
     if (!roomSockets) return;
 
     roomSockets.forEach((socketId) => {
@@ -45,7 +63,16 @@ live.on("connection", (socket) => {
         s.emit("receive-location", data);
       }
     });
-    
+
+    const userRoomSockets = live.adapter.rooms.get(userRoom);
+    if (userRoomSockets) {
+      userRoomSockets.forEach((socketId) => {
+        const s = live.sockets.get(socketId);
+        if (s && s.id !== socket.id && (s.data.role_id === 1 || s.data.role_id === 2) && !roomSockets.has(socketId)) {
+          s.emit("receive-location", data);
+        }
+      });
+    }
   });
 
   socket.on("disconnect", () => {

@@ -2,9 +2,9 @@
 const { io } = require("socket.io-client");
 
 const SERVER_URL = "http://localhost:5001";
-const TENANT_ID = "tenant123";
-const SUB_TENANT_ID = "subA";
-const USER_ID = 123; // ← ID staff ini
+const TENANT_ID = "daritemnatn";
+const SUB_TENANT_ID = "kesuban";
+const USER_ID = 444; // ← ID staff ini
 
 const socket = io(`${SERVER_URL}/live`);
 
@@ -19,8 +19,8 @@ socket.on("connect", () => {
 
   console.log("📡 Sending location every 2 seconds...\n");
 
-  let lat = -6.2;
-  let lng = 106.8;
+  let lat = -99.2;
+  let lng = 88.8;
 
   setInterval(() => {
     lat += (Math.random() - 0.5) * 0.001;
@@ -38,7 +38,7 @@ socket.on("connect", () => {
 
     socket.emit("send-location", payload);
     console.log("📤 Sent:", payload);
-  }, 2000);
+  }, 3000);
 });
 
 socket.on("connect_error", (err) => {
