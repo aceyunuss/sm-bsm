@@ -57,6 +57,14 @@ User.init(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
+    tenant_id: {
+      field: "tenant_id",
+      type: DataTypes.INTEGER,
+    },
+    sub_tenant_id: {
+      field: "sub_tenant_id",
+      type: DataTypes.INTEGER,
+    },
     role_id: {
       field: "role_id",
       type: DataTypes.INTEGER,
@@ -84,10 +92,10 @@ User.get = async (cond = {}, col = []) => {
       data: stat_find,
     };
   } catch (error) {
-    console.log('==========================START============================');
+    console.log("==========================START============================");
     console.log(error);
-    console.log('===========================END=============================');
-    
+    console.log("===========================END=============================");
+
     return { success: false, msg: error.message };
   }
 };
@@ -104,7 +112,6 @@ User.ins = async (data) => {
     return { success: false, msg: error.message };
   }
 };
-
 
 User.upd = async (data, cond) => {
   try {

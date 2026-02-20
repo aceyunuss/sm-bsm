@@ -20,9 +20,8 @@ const check = async (req, res) => {
 
   try {
     const payload = { username: req.body.username };
-    const col = ["user_id", "username", "password"];
 
-    const check_un = await User.get(payload, col);
+    const check_un = await User.get(payload);
 
     if (!check_un.success) return response.internalServerError("Error generate token", res);
     if (check_un.count == 0) return response.notFound("User not found", res);
@@ -35,6 +34,10 @@ const check = async (req, res) => {
     const data = {
       user_id: check_un.data[0].user_id,
       username: check_un.data[0].username,
+      name: check_un.data[0].name,
+      role_id: check_un.data[0].role_id,
+      tenant_id: check_un.data[0].tenant_id,
+      sub_tenant_id: check_un.data[0].sub_tenant_id,
       type: "Bearer",
       expired: "2 hours",
       token: token,

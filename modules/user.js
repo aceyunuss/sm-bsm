@@ -9,9 +9,8 @@ const getUser = async (req, res) => {
   if (!is_user_id) return response.badRequest("User id is required", res);
 
   try {
-    const col = ["user_id", "name", "username", "email", "nip"];
 
-    const check_un = await User.get({ user_id: req.params.user_id }, col);
+    const check_un = await User.get({ user_id: req.params.user_id });
 
     if (!check_un.success) return response.internalServerError("Error get user", res);
 
@@ -25,9 +24,7 @@ const getUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const col = ["user_id", "name", "username", "email", "nip"];
-
-    const check_un = await User.get({}, col);
+    const check_un = await User.get({});
 
     if (!check_un.success) return response.internalServerError("Error get user", res);
 
@@ -40,7 +37,7 @@ const getAllUser = async (req, res) => {
 };
 
 const insertUser = async (req, res) => {
-  const required = ["name", "username", "email", "nip", "password", "role_id", "created_by"];
+  const required = ["name", "username", "email", "nip", "password", "role_id", "created_by", "tenant_id", "sub_tenant_id"];
 
   const is_body = await validate.isExist(req.body);
   if (!is_body) return response.badRequest("Body request are required", res);
@@ -58,6 +55,8 @@ const insertUser = async (req, res) => {
       nip: req.body.nip,
       password: pw,
       role_id: req.body.role_id,
+      tenant_id: req.body.tenant_id,
+      sub_tenant_id: req.body.sub_tenant_id,
       created_by: req.body.created_by,
       created_date: new Date().toISOString(),
     };
@@ -90,6 +89,8 @@ const updateUser = async (req, res) => {
     if (req.body.dob !== undefined) data.dob = req.body.dob;
     if (req.body.nip !== undefined) data.nip = req.body.nip;
     if (req.body.role_id !== undefined) data.role_id = req.body.role_id;
+    if (req.body.tenant_id !== undefined) data.tenant_id = req.body.tenant_id;
+    if (req.body.sub_tenant_id !== undefined) data.sub_tenant_id = req.body.sub_tenant_id;
     if (req.body.password !== undefined) {
       const pw = await bcrypt.hash(req.body.password, 10);
       data.password = pw;
