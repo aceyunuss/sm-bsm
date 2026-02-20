@@ -59,7 +59,7 @@ live.on("connection", (socket) => {
 
     roomSockets.forEach((socketId) => {
       const s = live.sockets.get(socketId);
-      if (s && s.id !== socket.id && (s.data.role_id === 1 || s.data.role_id === 2)) {
+      if (s && s.id !== socket.id && (s.data.role_id === 1 || s.data.role_id === 2 || s.data.role_id === 3)) {
         s.emit("receive-location", data);
       }
     });
@@ -68,7 +68,7 @@ live.on("connection", (socket) => {
     if (userRoomSockets) {
       userRoomSockets.forEach((socketId) => {
         const s = live.sockets.get(socketId);
-        if (s && s.id !== socket.id && (s.data.role_id === 1 || s.data.role_id === 2) && !roomSockets.has(socketId)) {
+        if (s && s.id !== socket.id && (s.data.role_id === 1 || s.data.role_id === 2 || s.data.role_id === 3) && !roomSockets.has(socketId)) {
           s.emit("receive-location", data);
         }
       });
