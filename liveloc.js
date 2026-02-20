@@ -54,12 +54,14 @@ live.on("connection", (socket) => {
     const generalRoom = `tenant_${tenant_id}${sub_tenant_id ? `_sub_${sub_tenant_id}` : ""}`;
     const userRoom = `tenant_${tenant_id}:user_${user_id}`;
 
+    console.log('Send location from user', user_id, 'to rooms:', generalRoom, userRoom); 
     const roomSockets = live.adapter.rooms.get(generalRoom);
     if (!roomSockets) return;
 
     roomSockets.forEach((socketId) => {
       const s = live.sockets.get(socketId);
       if (s && s.id !== socket.id && (s.data.role_id === 1 || s.data.role_id === 2 || s.data.role_id === 3)) {
+        console.log("Emitting location to socket", s.id, "in room", generalRoom);
         s.emit("receive-location", data);
       }
     });
@@ -69,6 +71,7 @@ live.on("connection", (socket) => {
       userRoomSockets.forEach((socketId) => {
         const s = live.sockets.get(socketId);
         if (s && s.id !== socket.id && (s.data.role_id === 1 || s.data.role_id === 2 || s.data.role_id === 3) && !roomSockets.has(socketId)) {
+          console.log("Emitting location to socket", s.id, "in user room", userRoom);
           s.emit("receive-location", data);
         }
       });
