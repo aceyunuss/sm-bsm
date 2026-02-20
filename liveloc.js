@@ -49,7 +49,7 @@ live.on("connection", (socket) => {
 
   socket.on("send-location", (data) => {
     const { role_id, tenant_id, sub_tenant_id, user_id } = data;
-    if (role_id !== 3) return;
+    if (role_id !== 4) return;
 
     const generalRoom = `tenant_${tenant_id}${sub_tenant_id ? `_sub_${sub_tenant_id}` : ""}`;
     const userRoom = `tenant_${tenant_id}:user_${user_id}`;
