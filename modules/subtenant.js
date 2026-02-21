@@ -7,8 +7,7 @@ const getSubTenant = async (req, res) => {
   if (!is_sub_tenant_id) return response.badRequest("Sub Tenant id is required", res);
 
   try {
-    const col = ["sub_tenant_id", "tenant_id", "name", "is_active", "address"];
-    const check_un = await SubTenant.get({ sub_tenant_id: req.params.sub_tenant_id }, col);
+    const check_un = await SubTenant.get({ sub_tenant_id: req.params.sub_tenant_id });
     if (!check_un.success) return response.internalServerError("Error get sub tenant", res);
 
     if (check_un.count == 0) return response.notFound("Sub Tenant not found", res);
@@ -21,9 +20,7 @@ const getSubTenant = async (req, res) => {
 
 const getAllSubTenant = async (req, res) => {
   try {
-    const col = ["sub_tenant_id", "tenant_id", "name", "is_active", "address"];
-
-    const check_un = await SubTenant.get({}, col);
+    const check_un = await SubTenant.get({});
 
     if (!check_un.success) return response.internalServerError("Error get sub tenant", res);
     if (check_un.count == 0) return response.notFound("Sub Tenant not found", res);

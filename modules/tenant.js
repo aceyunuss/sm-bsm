@@ -7,9 +7,7 @@ const getTenant = async (req, res) => {
   if (!is_tenant_id) return response.badRequest("Tenant id is required", res);
 
   try {
-    const col = ["tenant_id", "name", "is_active", "address"];
-
-    const check_un = await Tenant.get({ tenant_id: req.params.tenant_id }, col);
+    const check_un = await Tenant.get({ tenant_id: req.params.tenant_id });
 
     if (!check_un.success) return response.internalServerError("Error get tenant", res);
 
@@ -23,9 +21,8 @@ const getTenant = async (req, res) => {
 
 const getAllTenant = async (req, res) => {
   try {
-    const col = ["tenant_id", "name", "is_active", "address"];
 
-    const check_un = await Tenant.get({}, col);
+    const check_un = await Tenant.get({});
 
     if (!check_un.success) return response.internalServerError("Error get tenant", res);
 

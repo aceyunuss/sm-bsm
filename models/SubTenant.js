@@ -6,7 +6,7 @@ class SubTenant extends Model {}
 SubTenant.init(
   {
     sub_tenant_id: {
-      field: "tenant_id",
+      field: "sub_tenant_id",
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
