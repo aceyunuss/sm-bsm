@@ -102,6 +102,50 @@ const getHistory = async (req, res) => {
   }
 };
 
+const getHistoryFilter = async (req, res) => {
+  const is_body = await validate.isExist(req.body);
+  if (!is_body) return response.badRequest("Body request are required", res);
+
+  const miss = await validate.isMissFields(["limit", "offset"], req.body);
+  if (miss) return response.badRequest(miss, res);
+
+  let param = {};
+
+  if (req.body.user_id !== undefined) param.user_id = req.body.user_id;
+  if (req.body.tenant_id !== undefined) param.tenant_id = req.body.tenant_id;
+  if (req.body.sub_tenant_id !== undefined) param.user_id = req.body.sub_tenant_id;
+
+  const lim = req.body.limit;
+  const off = req.body.offset;
+
+  try {
+    const check_un = await Visit.get(param, [], [["created_date", "DESC"]], lim, off);
+
+    if (!check_un.success) return response.internalServerError("Error get history", res);
+    if (check_un.count == 0) return response.notFound("History not found", res);
+
+    return response.success("Success get history", res, check_un.data);
+  } catch (error) {
+    return response.internalServerError("Error get history", res);
+  }
+};
+
+const getLastActive = async (req, res) => {
+  const is_user_id = await validate.isExist(req.params.user_id);
+  if (!is_user_id) return response.badRequest("User id is required", res);
+
+  try {
+    const check_un = await Visit.get({ user_id: req.params.user_id, check_out: null }, [], [["created_date", "DESC"]]);
+
+    if (!check_un.success) return response.internalServerError("Error get history", res);
+    if (check_un.count == 0) return response.notFound("History not found", res);
+
+    return response.success("Success get history", res, check_un.data[0]);
+  } catch (error) {
+    return response.internalServerError("Error get history", res);
+  }
+};
+
 const getHistoryUser = async (req, res) => {
   const is_user_id = await validate.isExist(req.params.user_id);
   if (!is_user_id) return response.badRequest("User id is required", res);
@@ -238,7 +282,9 @@ const getAttachmentOut = async (req, res) => {
 module.exports = {
   checkIn,
   checkOut,
+  getLastActive,
   getHistory,
+  getHistoryFilter,
   getHistoryUser,
   getHistoryTenant,
   getHistorySubTenant,

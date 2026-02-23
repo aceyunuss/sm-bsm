@@ -35,6 +35,8 @@ router.get("/attachment-in/:visit_id", visit.getAttachmentIn);
 router.get("/attachment-out/:visit_id", visit.getAttachmentOut);
 
 router.get("/history/:visit_id", visit.getHistory);
+router.get("/history-filter", visit.getHistoryFilter);
+router.get("/history-active/:user_id", visit.getLastActive);
 router.get("/history-by-user/:user_id", visit.getHistoryUser);
 router.get("/history-by-tenant/:tenant_id", visit.getHistoryTenant);
 router.get("/history-by-sub-tenant/:sub_tenant_id", visit.getHistorySubTenant);

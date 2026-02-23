@@ -117,12 +117,16 @@ Visit.init(
   },
 );
 
-Visit.get = async (cond = {}, col = []) => {
+Visit.get = async (cond = {}, col = [], order = [], limit = null, offset = 0) => {
   const attr = col.length === 0 ? {} : { attributes: col };
+  const orderBy = order.length === 0 ? {} : { order };
+  const limitBy = limit ? { limit, offset } : {};
   try {
     const data = await Visit.findAll({
       where: cond,
       ...attr,
+      ...orderBy,
+      ...limitBy,
     });
     return {
       success: true,
