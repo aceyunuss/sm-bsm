@@ -147,7 +147,7 @@ const getHistorySubTenant = async (req, res) => {
   }
 };
 
-const getPhoto = async (req, res) => {
+const getPhotoIn = async (req, res) => {
   const is_visit_id = await validate.isExist(req.params.visit_id);
   if (!is_visit_id) return response.badRequest("Visit id is required", res);
 
@@ -167,7 +167,27 @@ const getPhoto = async (req, res) => {
   }
 };
 
-const getAttachment = async (req, res) => {
+const getPhotoOut = async (req, res) => {
+  const is_visit_id = await validate.isExist(req.params.visit_id);
+  if (!is_visit_id) return response.badRequest("Visit id is required", res);
+
+  try {
+    const check = await Visit.get({ visit_id: req.params.visit_id });
+
+    if (!check.success) return response.internalServerError("Error get photo", res);
+    if (check.count == 0) return response.notFound("Visit not found", res);
+
+    const filePath = path.resolve(check.data[0].photo1);
+
+    if (!fs.existsSync(filePath)) return response.notFound("Photo not found", res);
+
+    return res.sendFile(filePath);
+  } catch (error) {
+    return response.internalServerError("Error get photo", res);
+  }
+};
+
+const getAttachmentIn = async (req, res) => {
   const is_visit_id = await validate.isExist(req.params.visit_id);
   if (!is_visit_id) return response.badRequest("Visit id is required", res);
 
@@ -177,7 +197,7 @@ const getAttachment = async (req, res) => {
     if (!check.success) return response.internalServerError("Error get attachment", res);
     if (check.count == 0) return response.notFound("Visit not found", res);
 
-    const attachmentPath = check.data[0].attachment || check.data[0].attachment1;
+    const attachmentPath = check.data[0].attachment;
 
     if (!attachmentPath) return response.notFound("Attachment not found", res);
 
@@ -191,4 +211,39 @@ const getAttachment = async (req, res) => {
   }
 };
 
-module.exports = { checkIn, checkOut, getHistory, getHistoryUser, getHistoryTenant, getHistorySubTenant, getPhoto, getAttachment };
+const getAttachmentOut = async (req, res) => {
+  const is_visit_id = await validate.isExist(req.params.visit_id);
+  if (!is_visit_id) return response.badRequest("Visit id is required", res);
+
+  try {
+    const check = await Visit.get({ visit_id: req.params.visit_id });
+
+    if (!check.success) return response.internalServerError("Error get attachment", res);
+    if (check.count == 0) return response.notFound("Visit not found", res);
+
+    const attachmentPath = check.data[0].attachment1;
+
+    if (!attachmentPath) return response.notFound("Attachment not found", res);
+
+    const filePath = path.resolve(attachmentPath);
+
+    if (!fs.existsSync(filePath)) return response.notFound("File not found", res);
+
+    return res.download(filePath);
+  } catch (error) {
+    return response.internalServerError("Error get attachment", res);
+  }
+};
+
+module.exports = {
+  checkIn,
+  checkOut,
+  getHistory,
+  getHistoryUser,
+  getHistoryTenant,
+  getHistorySubTenant,
+  getPhotoIn,
+  getPhotoOut,
+  getAttachmentIn,
+  getAttachmentOut,
+};

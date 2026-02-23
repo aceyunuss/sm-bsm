@@ -29,8 +29,10 @@ router.post(
   visit.checkOut,
 );
 
-router.get("/photo/:visit_id", visit.getPhoto);
-router.get("/attachment/:visit_id", visit.getAttachment);
+router.get("/photo-in/:visit_id", visit.getPhotoIn);
+router.get("/photo-out/:visit_id", visit.getPhotoOut);
+router.get("/attachment-in/:visit_id", visit.getAttachmentIn);
+router.get("/attachment-out/:visit_id", visit.getAttachmentOut);
 
 router.get("/history/:visit_id", visit.getHistory);
 router.get("/history-by-user/:user_id", visit.getHistoryUser);
