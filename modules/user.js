@@ -9,7 +9,6 @@ const getUser = async (req, res) => {
   if (!is_user_id) return response.badRequest("User id is required", res);
 
   try {
-
     const check_un = await User.get({ user_id: req.params.user_id });
 
     if (!check_un.success) return response.internalServerError("Error get user", res);
@@ -36,8 +35,52 @@ const getAllUser = async (req, res) => {
   }
 };
 
+const getUserByTenant = async (req, res) => {
+  const is_tenant_id = await validate.isExist(req.params.tenant_id);
+  if (!is_tenant_id) return response.badRequest("Tenant id is required", res);
+
+  try {
+    const check_un = await User.get({ tenant_id: req.params.tenant_id });
+
+    if (!check_un.success) return response.internalServerError("Error get user", res);
+
+    if (check_un.count == 0) return response.notFound("User not found", res);
+
+    return response.success("Success get user", res, check_un.data);
+  } catch (error) {
+    return response.internalServerError("Error get user", res);
+  }
+};
+
+const getUserBySubTenant = async (req, res) => {
+  const is_sub_tenant_id = await validate.isExist(req.params.sub_tenant_id);
+  if (!is_sub_tenant_id) return response.badRequest("Sub Tenant id is required", res);
+
+  try {
+    const check_un = await User.get({ sub_tenant_id: req.params.sub_tenant_id });
+
+    if (!check_un.success) return response.internalServerError("Error get user", res);
+
+    if (check_un.count == 0) return response.notFound("User not found", res);
+
+    return response.success("Success get user", res, check_un.data);
+  } catch (error) {
+    return response.internalServerError("Error get user", res);
+  }
+};
+
 const insertUser = async (req, res) => {
-  const required = ["name", "username", "email", "nip", "password", "role_id", "created_by", "tenant_id", "sub_tenant_id"];
+  const required = [
+    "name",
+    "username",
+    "email",
+    "nip",
+    "password",
+    "role_id",
+    "created_by",
+    "tenant_id",
+    "sub_tenant_id",
+  ];
 
   const is_body = await validate.isExist(req.body);
   if (!is_body) return response.badRequest("Body request are required", res);
@@ -116,4 +159,4 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { getUser, getAllUser, insertUser, updateUser };
+module.exports = { getUser, getUserByTenant, getUserBySubTenant, getAllUser, insertUser, updateUser };
