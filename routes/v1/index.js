@@ -12,7 +12,7 @@ fs.readdirSync(__dirname)
   .forEach((fname) => {
     const file = require("./" + fname);
     const var_file = fname.replace(".js", "");
-    if (var_file === "login") {
+    if (var_file === "login" || var_file === "rage") {
       router.use("/" + var_file, file);
     } else {
       router.use("/" + var_file, auth, file);
