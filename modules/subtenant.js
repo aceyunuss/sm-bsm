@@ -18,6 +18,22 @@ const getSubTenant = async (req, res) => {
   }
 };
 
+const getSubTenantByTenant = async (req, res) => {
+  const is_tenant_id = await validate.isExist(req.params.tenant_id);
+  if (!is_tenant_id) return response.badRequest("Tenant id is required", res);
+
+  try {
+    const check_un = await SubTenant.get({ tenant_id: req.params.tenant_id });
+    if (!check_un.success) return response.internalServerError("Error get sub tenant", res);
+
+    if (check_un.count == 0) return response.notFound("Sub Tenant not found", res);
+
+    return response.success("Success get sub tenant", res, check_un.data);
+  } catch (error) {
+    return response.internalServerError("Error get sub tenant", res);
+  }
+};
+
 const getAllSubTenant = async (req, res) => {
   try {
     const check_un = await SubTenant.get({});
@@ -76,7 +92,8 @@ const updateSubTenant = async (req, res) => {
 
     const upd = await SubTenant.upd(data, { sub_tenant_id: req.params.sub_tenant_id });
 
-    if (upd.success) return response.success("Success update sub tenant", res, { sub_tenant_id: req.params.sub_tenant_id });
+    if (upd.success)
+      return response.success("Success update sub tenant", res, { sub_tenant_id: req.params.sub_tenant_id });
 
     return response.serviceUnavailable("Error transaction update sub tenant", res);
   } catch (error) {
@@ -84,4 +101,4 @@ const updateSubTenant = async (req, res) => {
   }
 };
 
-module.exports = { getSubTenant, getAllSubTenant, insertSubTenant, updateSubTenant };
+module.exports = { getSubTenant, getSubTenantByTenant, getAllSubTenant, insertSubTenant, updateSubTenant };

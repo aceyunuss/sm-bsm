@@ -13,6 +13,7 @@ router.get("/tenant", tenant.getAllTenant);
 router.put("/tenant/:tenant_id", tenant.updateTenant);
 router.post("/tenant", tenant.insertTenant);
 
+router.get("/subtenant-by-tenant/:tenant_id", subtenant.getSubTenantByTenant);
 router.get("/subtenant/:sub_tenant_id", subtenant.getSubTenant);
 router.get("/subtenant", subtenant.getAllSubTenant);
 router.put("/subtenant/:sub_tenant_id", subtenant.updateSubTenant);
