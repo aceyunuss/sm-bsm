@@ -16,6 +16,8 @@ Report.init(
     date: { field: "date", type: DataTypes.DATEONLY },
     name: { field: "name", type: DataTypes.STRING },
     role: { field: "role", type: DataTypes.STRING },
+    tenant_id: { field: "tenant_id", type: DataTypes.INTEGER },
+    sub_tenant_id: { field: "sub_tenant_id", type: DataTypes.INTEGER },
     sub_tenant: { field: "sub_tenant", type: DataTypes.STRING },
     tenant: { field: "tenant", type: DataTypes.STRING },
     check_in: { field: "check_in", type: DataTypes.DATE },
@@ -55,10 +57,6 @@ Report.get = async (cond = {}, col = [], order = [], limit = null, offset = 0) =
     });
     return { success: true, count: data.length, data };
   } catch (error) {
-    console.log("==========================START============================");
-    console.log(error);
-    console.log("===========================END=============================");
-
     return { success: false, msg: error.message };
   }
 };

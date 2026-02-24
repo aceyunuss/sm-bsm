@@ -295,15 +295,18 @@ const generateReportExcel = async (req, res) => {
   const miss = await validate.isMissFields(required, req.body);
   if (miss) return response.badRequest(miss, res);
 
+  let cond = {};
+
+  if (req.body.tenant_id !== undefined) cond.tenant_id = req.body.tenant_id;
+  if (req.body.sub_tenant_id !== undefined) cond.user_id = req.body.sub_tenant_id;
+
   const start_date = req.body.start_date;
   const end_date = req.body.end_date;
 
+  cond.date = { [Op.between]: [start_date, end_date] };
+
   try {
-    const check_un = await Report.get({
-      date: {
-        [Op.between]: [start_date, end_date],
-      },
-    });
+    const check_un = await Report.get(cond);
 
     if (!check_un.success) return response.internalServerError("Error get history", res);
     if (check_un.count == 0) return response.notFound("History not found", res);
