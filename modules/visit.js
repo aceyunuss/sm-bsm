@@ -113,17 +113,20 @@ const getHistoryFilter = async (req, res) => {
   const is_body = await validate.isExist(req.body);
   if (!is_body) return response.badRequest("Body request are required", res);
 
-  const miss = await validate.isMissFields(["limit", "offset"], req.body);
-  if (miss) return response.badRequest(miss, res);
+  // const miss = await validate.isMissFields(["limit", "offset"], req.body);
+  // if (miss) return response.badRequest(miss, res);
 
   let param = {};
 
   if (req.body.user_id !== undefined) param.user_id = req.body.user_id;
   if (req.body.tenant_id !== undefined) param.tenant_id = req.body.tenant_id;
   if (req.body.sub_tenant_id !== undefined) param.user_id = req.body.sub_tenant_id;
+  if (req.body.start_date !== undefined && req.body.end_date) {
+    param.created_date = { [Op.between]: [req.body.start_date, req.body.end_date] };
+  }
 
-  const lim = req.body.limit;
-  const off = req.body.offset;
+  const lim = req.body.limit ?? 100;
+  const off = req.body.offset ?? 0;
 
   try {
     const check_un = await Visit.get(param, [], [["created_date", "DESC"]], lim, off);
