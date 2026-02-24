@@ -298,7 +298,7 @@ const generateReportExcel = async (req, res) => {
   let cond = {};
 
   if (req.body.tenant_id !== undefined) cond.tenant_id = req.body.tenant_id;
-  if (req.body.sub_tenant_id !== undefined) cond.user_id = req.body.sub_tenant_id;
+  if (req.body.sub_tenant_id !== undefined) cond.sub_tenant_id = req.body.sub_tenant_id;
 
   const start_date = req.body.start_date;
   const end_date = req.body.end_date;
