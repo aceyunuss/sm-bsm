@@ -6,6 +6,7 @@ var morgan = require("morgan");
 var routes = require("./routes/v1");
 var log = require("./service/log");
 var no_endpoint = require("./utils/endpoint");
+var preview = require("./preview");
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -26,7 +27,7 @@ app.use(
 );
 
 app.use("/api/v1/", routes);
-
+app.use("/preview/", preview);
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Server is up 😸" });
 });

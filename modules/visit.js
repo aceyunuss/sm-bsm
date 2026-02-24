@@ -1,8 +1,15 @@
+const ExcelJS = require("exceljs");
 const path = require("path");
 const fs = require("fs");
 const response = require("../utils/response");
 const validate = require("../utils/validation");
 const Visit = require("../models/Visit");
+const { Op } = require("sequelize");
+const Report = require("../models/Report");
+const dotenv = require("dotenv");
+const preview = require("../preview");
+
+dotenv.config();
 
 const checkIn = async (req, res) => {
   const required = ["user_id", "check_in", "long", "lat", "location", "tenant_id", "sub_tenant_id"];
@@ -279,6 +286,142 @@ const getAttachmentOut = async (req, res) => {
   }
 };
 
+const generateReportExcel = async (req, res) => {
+  const required = ["start_date", "end_date"];
+
+  const is_body = await validate.isExist(req.body);
+  if (!is_body) return response.badRequest("Body request are required", res);
+
+  const miss = await validate.isMissFields(required, req.body);
+  if (miss) return response.badRequest(miss, res);
+
+  const start_date = req.body.start_date;
+  const end_date = req.body.end_date;
+
+  try {
+    const check_un = await Report.get({
+      date: {
+        [Op.between]: [start_date, end_date],
+      },
+    });
+
+    if (!check_un.success) return response.internalServerError("Error get history", res);
+    if (check_un.count == 0) return response.notFound("History not found", res);
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet("Visit History");
+
+    sheet.columns = [
+      { header: "No", key: "no", width: 5 },
+      { header: "Date", key: "date", width: 15 },
+      { header: "Nama", key: "name", width: 20 },
+      { header: "Role", key: "role", width: 15 },
+      { header: "Sub Tenant", key: "sub_tenant", width: 20 },
+      { header: "Tenant", key: "tenant", width: 20 },
+      { header: "Check In", key: "check_in", width: 22 },
+      { header: "Check Out", key: "check_out", width: 22 },
+      { header: "Duration", key: "duration", width: 20 },
+      { header: "Photo In", key: "photo", width: 10 },
+      { header: "Attachment In", key: "attachment", width: 12 },
+      { header: "Location In", key: "location", width: 40 },
+      { header: "Notes In", key: "notes", width: 20 },
+      { header: "Photo Out", key: "photo1", width: 10 },
+      { header: "Attachment Out", key: "attachment1", width: 12 },
+      { header: "Location Out", key: "location1", width: 40 },
+      { header: "Notes Out", key: "notes1", width: 20 },
+    ];
+
+    sheet.getRow(1).eachCell((cell) => {
+      cell.alignment = { horizontal: "center" };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF4F81BD" },
+      };
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    });
+
+    check_un.data.forEach((item, index) => {
+      const rowIndex = index + 2;
+
+      sheet.addRow({
+        no: index + 1,
+        date: item.date,
+        name: item.name,
+        role: item.role,
+        sub_tenant: item.sub_tenant,
+        tenant: item.tenant,
+        check_in: item.check_in ? new Date(item.check_in).toISOString().replace("T", " ").substring(0, 19) : "",
+        check_out: item.check_out ? new Date(item.check_out).toISOString().replace("T", " ").substring(0, 19) : "",
+        duration: item.duration,
+        photo: item.photo ? "LINK" : "",
+        attachment: item.attachment ? "LINK" : "",
+        location: item.location,
+        notes: item.notes ?? "",
+        photo1: item.photo1 ? "LINK" : "",
+        attachment1: item.attachment1 ? "LINK" : "",
+        location1: item.location1,
+        notes1: item.notes1 ?? "",
+      });
+
+      const url = process.env.BASE_URL + "preview/";
+
+      if (item.photo) {
+        const hashed = preview.encrypt(item.photo);
+        sheet.getCell(`J${rowIndex}`).value = { text: "LINK", hyperlink: url + hashed };
+        sheet.getCell(`J${rowIndex}`).font = { color: { argb: "FF0000FF" }, underline: true };
+      }
+
+      if (item.photo1) {
+        const hashed = preview.encrypt(item.photo1);
+        sheet.getCell(`N${rowIndex}`).value = { text: "LINK", hyperlink: url + hashed };
+        sheet.getCell(`N${rowIndex}`).font = { color: { argb: "FF0000FF" }, underline: true };
+      }
+
+      if (item.attachment) {
+        const hashed = preview.encrypt(item.attachment);
+        sheet.getCell(`K${rowIndex}`).value = { text: "LINK", hyperlink: url + hashed };
+        sheet.getCell(`K${rowIndex}`).font = { color: { argb: "FF0000FF" }, underline: true };
+      }
+
+      if (item.attachment1) {
+        const hashed = preview.encrypt(item.attachment1);
+        sheet.getCell(`O${rowIndex}`).value = { text: "LINK", hyperlink: url + hashed };
+        sheet.getCell(`O${rowIndex}`).font = { color: { argb: "FF0000FF" }, underline: true };
+      }
+
+      if (item.location) {
+        sheet.getCell(`L${rowIndex}`).value = {
+          text: item.location,
+          hyperlink: `https://maps.google.com/?q=${item.lat},${item.long}`,
+        };
+        sheet.getCell(`L${rowIndex}`).font = { color: { argb: "FF0000FF" }, underline: true };
+      }
+      if (item.location1) {
+        sheet.getCell(`P${rowIndex}`).value = {
+          text: item.location1,
+          hyperlink: `https://maps.google.com/?q=${item.lat1},${item.long1}`,
+        };
+        sheet.getCell(`P${rowIndex}`).font = { color: { argb: "FF0000FF" }, underline: true };
+      }
+    });
+
+    const now = new Date().toISOString().replace("T", "_").replace(/:/g, "").substring(0, 19);
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", `attachment; filename=history_${start_date}_${end_date}_${now}.xlsx`);
+    res.setHeader("Content-Transfer-Encoding", "binary");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error(error);
+    return response.internalServerError("Error generate report", res);
+  }
+};
+
 module.exports = {
   checkIn,
   checkOut,
@@ -292,4 +435,5 @@ module.exports = {
   getPhotoOut,
   getAttachmentIn,
   getAttachmentOut,
+  generateReportExcel,
 };

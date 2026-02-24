@@ -41,4 +41,6 @@ router.get("/history-by-user/:user_id", visit.getHistoryUser);
 router.get("/history-by-tenant/:tenant_id", visit.getHistoryTenant);
 router.get("/history-by-sub-tenant/:sub_tenant_id", visit.getHistorySubTenant);
 
+router.get("/report", visit.generateReportExcel)
+
 module.exports = router;
