@@ -122,7 +122,7 @@ const getHistoryFilter = async (req, res) => {
   if (req.body.tenant_id !== undefined) param.tenant_id = req.body.tenant_id;
   if (req.body.sub_tenant_id !== undefined) param.sub_tenant_id = req.body.sub_tenant_id;
   if (req.body.start_date !== undefined && req.body.end_date) {
-    param.created_date = { [Op.between]: [req.body.start_date, req.body.end_date] };
+    param.created_date = { between: [req.body.start_date, req.body.end_date] };
   }
 
   const lim = req.body.limit ?? 100;
@@ -136,6 +136,10 @@ const getHistoryFilter = async (req, res) => {
 
     return response.success("Success get history", res, check_un.data);
   } catch (error) {
+    console.log("==========================START============================");
+    console.log(error);
+    console.log("===========================END=============================");
+
     return response.internalServerError("Error get history", res);
   }
 };

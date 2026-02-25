@@ -171,10 +171,16 @@ Visit.getAll = async (cond = {}, col = [], order = [], limit = null, offset = 0)
   try {
     const replacements = {};
     const whereParts = Object.entries(cond).map(([k, v]) => {
+      if (v && typeof v === "object" && v.between) {
+        replacements[`${k}_start`] = v.between[0];
+        replacements[`${k}_end`] = v.between[1];
+        return `"Visit"."${k}" BETWEEN :${k}_start AND :${k}_end`;
+      }
       replacements[k] = v;
       const tbl = k == "role_id" ? "u" : "Visit";
       return `"${tbl}"."${k}" = :${k}`;
-    });    
+    });
+
     const whereClause = whereParts.length ? `WHERE ${whereParts.join(" AND ")}` : "";
     const orderClause = order.length ? `ORDER BY "Visit"."${order[0][0]}" ${order[0][1]}` : "";
     const limitClause = limit ? `LIMIT ${limit} OFFSET ${offset}` : "";
@@ -198,7 +204,11 @@ Visit.getAll = async (cond = {}, col = [], order = [], limit = null, offset = 0)
     );
 
     return { success: true, count: data.length, data };
-  } catch (error) {        
+  } catch (error) {
+    console.log("==========================START============================");
+    console.log(error);
+    console.log("===========================END=============================");
+
     return { success: false, msg: error.message };
   }
 };
