@@ -122,7 +122,13 @@ const getHistoryFilter = async (req, res) => {
   if (req.body.tenant_id !== undefined) param.tenant_id = req.body.tenant_id;
   if (req.body.sub_tenant_id !== undefined) param.sub_tenant_id = req.body.sub_tenant_id;
   if (req.body.start_date !== undefined && req.body.end_date) {
-    param.created_date = { between: [req.body.start_date, req.body.end_date] };
+    const startDate = new Date(req.body.start_date);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(req.body.end_date);
+    endDate.setHours(23, 59, 59, 999);
+
+    param.created_date = { between: [startDate, endDate] };
   }
 
   const lim = req.body.limit ?? 100;
