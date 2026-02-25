@@ -116,7 +116,7 @@ const getHistoryFilter = async (req, res) => {
   // const miss = await validate.isMissFields(["limit", "offset"], req.body);
   // if (miss) return response.badRequest(miss, res);
 
-  let param = {};
+  let param = { role_id: 4 };
 
   if (req.body.user_id !== undefined) param.user_id = req.body.user_id;
   if (req.body.tenant_id !== undefined) param.tenant_id = req.body.tenant_id;
@@ -129,7 +129,7 @@ const getHistoryFilter = async (req, res) => {
   const off = req.body.offset ?? 0;
 
   try {
-    const check_un = await Visit.get(param, [], [["created_date", "DESC"]], lim, off);
+    const check_un = await Visit.getAll(param, [], [["created_date", "DESC"]], lim, off);
 
     if (!check_un.success) return response.internalServerError("Error get history", res);
     if (check_un.count == 0) return response.notFound("History not found", res);

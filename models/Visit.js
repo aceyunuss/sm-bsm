@@ -1,6 +1,7 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 const { db_smbsm } = require("../config/database");
+const { QueryTypes } = require("sequelize");
 
 class Visit extends Model {}
 
@@ -162,6 +163,42 @@ Visit.upd = async (data, cond) => {
       count: stat_upd[0],
     };
   } catch (error) {
+    return { success: false, msg: error.message };
+  }
+};
+
+Visit.getAll = async (cond = {}, col = [], order = [], limit = null, offset = 0) => {
+  try {
+    const replacements = {};
+    const whereParts = Object.entries(cond).map(([k, v]) => {
+      replacements[k] = v;
+      const tbl = k == "role_id" ? "u" : "Visit";
+      return `"${tbl}"."${k}" = :${k}`;
+    });    
+    const whereClause = whereParts.length ? `WHERE ${whereParts.join(" AND ")}` : "";
+    const orderClause = order.length ? `ORDER BY "Visit"."${order[0][0]}" ${order[0][1]}` : "";
+    const limitClause = limit ? `LIMIT ${limit} OFFSET ${offset}` : "";
+
+    const data = await db_smbsm.query(
+      `SELECT 
+        "Visit".*,
+        "u"."name"     AS "name",
+        "u"."username" AS "username",
+        "u"."role_id" AS "role_id"
+       FROM "visit" AS "Visit"
+       LEFT JOIN "mst_users" AS "u" ON "Visit"."user_id" = "u"."user_id"
+       ${whereClause}
+       ${orderClause}
+       ${limitClause}`,
+      {
+        replacements,
+        type: QueryTypes.SELECT,
+        // nest: true,
+      },
+    );
+
+    return { success: true, count: data.length, data };
+  } catch (error) {        
     return { success: false, msg: error.message };
   }
 };
