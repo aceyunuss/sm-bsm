@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
       <tr>
         <td>${v.version}</td>
         <td>${v.date}</td>
-        <td><a href="/download/${v.filename}" download>⬇ Download</a></td>
+        <td><a href="/version/download/${v.filename}" download>⬇ Download</a></td>
       </tr>`,
     )
     .join("");
