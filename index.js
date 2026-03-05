@@ -7,6 +7,7 @@ var routes = require("./routes/v1");
 var log = require("./service/log");
 var no_endpoint = require("./utils/endpoint");
 var preview = require("./preview");
+var version = require("./service/version");
 
 dotenv.config();
 const PORT = process.env.PORT;
@@ -35,6 +36,7 @@ app.get("/", (req, res) => {
 app.get("/health", async (req, res) => {
   res.status(200).json("ok");
 });
+app.use("/version", version);
 
 app.use(no_endpoint);
 
