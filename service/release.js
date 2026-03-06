@@ -83,8 +83,7 @@ router.get("/", async (req, res) => {
     tr:hover td { background: #253347; }
     td:nth-child(1) {
       font-family: 'Courier New', monospace;
-      color: #38bdf8;
-      font-weight: 600;
+      font-weight: 800;
     }
 
     /* Mobile */
