@@ -3,13 +3,14 @@ const response = require("../utils/response");
 const validate = require("../utils/validation");
 const User = require("../models/User");
 const { Op } = require("sequelize");
+const VwUser = require("../models/VwUser");
 
 const getUser = async (req, res) => {
   const is_user_id = await validate.isExist(req.params.user_id);
   if (!is_user_id) return response.badRequest("User id is required", res);
 
   try {
-    const check_un = await User.get({ user_id: req.params.user_id });
+    const check_un = await VwUser.get({ user_id: req.params.user_id });
 
     if (!check_un.success) return response.internalServerError("Error get user", res);
 
@@ -23,7 +24,7 @@ const getUser = async (req, res) => {
 
 const getAllUser = async (req, res) => {
   try {
-    const check_un = await User.get({});
+    const check_un = await VwUser.get({});
 
     if (!check_un.success) return response.internalServerError("Error get user", res);
 
@@ -40,7 +41,7 @@ const getUserByTenant = async (req, res) => {
   if (!is_tenant_id) return response.badRequest("Tenant id is required", res);
 
   try {
-    const check_un = await User.get({ tenant_id: req.params.tenant_id });
+    const check_un = await VwUser.get({ tenant_id: req.params.tenant_id });
 
     if (!check_un.success) return response.internalServerError("Error get user", res);
 
@@ -57,7 +58,7 @@ const getUserBySubTenant = async (req, res) => {
   if (!is_sub_tenant_id) return response.badRequest("Sub Tenant id is required", res);
 
   try {
-    const check_un = await User.get({ sub_tenant_id: req.params.sub_tenant_id });
+    const check_un = await VwUser.get({ sub_tenant_id: req.params.sub_tenant_id });
 
     if (!check_un.success) return response.internalServerError("Error get user", res);
 
