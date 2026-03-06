@@ -8,5 +8,6 @@ router.get("/:user_id", user.getUser);
 router.get("/", user.getAllUser);
 router.post("/", user.insertUser);
 router.put("/:user_id", user.updateUser);
+router.put("/change-password/:user_id", user.changePass);
 
 module.exports = router;

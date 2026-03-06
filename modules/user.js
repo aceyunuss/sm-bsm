@@ -160,4 +160,39 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { getUser, getUserByTenant, getUserBySubTenant, getAllUser, insertUser, updateUser };
+const changePass = async (req, res) => {
+  const is_user_id = await validate.isExist(req.params.user_id);
+  if (!is_user_id) return response.badRequest("User id is required", res);
+
+  const is_body = await validate.isExist(req.body);
+  if (!is_body) return response.badRequest("Body request are required", res);
+
+  const miss = await validate.isMissFields(["new_password", "old_password"], req.body);
+  if (miss) return response.badRequest(miss, res);
+
+  try {
+    const check_un = await VwUser.get({ user_id: req.params.user_id }, ["password", "name"]);
+
+    if (!check_un.success) return response.internalServerError("Error get user", res);
+    if (check_un.count == 0) return response.notFound("User not found", res);
+
+    const isValid = await bcrypt.compare(req.body.old_password, check_un.data[0].password);
+    if (!isValid) return response.unauthorized("Old password not match", res);
+
+    const data = {
+      password: await bcrypt.hash(req.body.new_password, 10),
+      updated_date: new Date(),
+      updated_by: check_un.data[0].name,
+    };
+
+    const upd = await User.upd(data, { user_id: req.params.user_id });
+
+    if (!upd.success) return response.serviceUnavailable("Error transaction update password", res);
+
+    return response.success("Success update password", res, []);
+  } catch (error) {
+    return response.internalServerError("Error update password", res);
+  }
+};
+
+module.exports = { getUser, getUserByTenant, getUserBySubTenant, getAllUser, insertUser, updateUser, changePass };
