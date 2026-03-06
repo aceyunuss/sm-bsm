@@ -97,9 +97,8 @@ router.get("/", async (req, res) => {
       }
       td {
         padding: 12px 14px;
-        font-size: 1rem;
+        font-size: 0.9rem;
       }
-      td:nth-child(2) { font-size: 1rem; }
     }
     td a {
       color: #38bdf8;
