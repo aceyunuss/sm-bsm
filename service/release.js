@@ -32,7 +32,7 @@ router.get("/", async (req, res) => {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App Versions</title>
+  <title>App Release</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -113,7 +113,7 @@ router.get("/", async (req, res) => {
 </head>
 <body>
   <div class="container">
-    <h1>App Versions</h1>
+    <h1>App Release</h1>
     <table>
       <thead>
         <tr>
