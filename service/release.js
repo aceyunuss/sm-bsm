@@ -19,11 +19,13 @@ router.get("/", async (req, res) => {
   const rows = app.data
     .map(
       (v, i) => `
-      <tr>
-        <td>${v.version}</td>
-        <td>${v.date}</td>
-        <td><a href="/release/download/${v.filename}" download>Download</a></td>
-      </tr>`,
+    <tr>
+      <td>
+        ${v.version}${i === 0 ? `<sup style="color:#00f0ff;text-shadow:0 0 6px #00f0ff,0 0 12px #00bfff,0 0 20px #0099ff;">new</sup>` : ""}
+      </td>
+      <td>${v.date}</td>
+      <td><a href="/release/download/${v.filename}" download>Download</a></td>
+    </tr>`,
     )
     .join("");
 
