@@ -40,14 +40,29 @@ preview.get("/:hash", (req, res) => {
 
     const ext = path.extname(filePath).toLowerCase();
     const imageExt = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
+    const pdfExt = [".pdf"];
 
-    res.type(ext);
+    const mimeTypes = {
+      ".jpg": "image/jpeg",
+      ".jpeg": "image/jpeg",
+      ".png": "image/png",
+      ".gif": "image/gif",
+      ".webp": "image/webp",
+      ".svg": "image/svg+xml",
+      ".pdf": "application/pdf",
+    };
 
-    if (imageExt.includes(ext)) {
+    const mimeType = mimeTypes[ext] || "application/octet-stream";
+    res.setHeader("Content-Type", mimeType);
+
+    if (imageExt.includes(ext) || pdfExt.includes(ext)) {
       res.setHeader("Content-Disposition", "inline");
+      res.setHeader("X-Content-Type-Options", "nosniff");
       return res.sendFile(path.resolve(filePath));
     } else {
-      return res.download(path.resolve(filePath));
+      const fileName = path.basename(filePath);
+      res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+      return res.sendFile(path.resolve(filePath));
     }
   } catch (error) {
     return res.status(400).json("Error");
