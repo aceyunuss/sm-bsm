@@ -52,18 +52,43 @@ preview.get("/:hash", (req, res) => {
       ".pdf": "application/pdf",
     };
 
-    const mimeType = mimeTypes[ext] || "application/octet-stream";
-    res.setHeader("Content-Type", mimeType);
+    if (imageExt.includes(ext) && !req.query.raw) {
+      const rawUrl = `${req.protocol}://${req.get("host")}${req.baseUrl}${req.path}?raw=1`;
+      return res.send(`<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { background:#000; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+      img { max-width:100%; max-height:100vh; object-fit:contain; }
+    </style>
+  </head>
+  <body>
+    <img src="${rawUrl}" />
+  </body>
+</html>`);
+    }
 
-    if (imageExt.includes(ext) || pdfExt.includes(ext)) {
+    if (pdfExt.includes(ext)) {
+      const fileName = path.basename(filePath);
+      res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+      res.setHeader("Content-Type", "application/pdf");
+      return res.sendFile(path.resolve(filePath));
+    }
+
+    if (imageExt.includes(ext)) {
+      const mimeType = mimeTypes[ext];
+      res.setHeader("Content-Type", mimeType);
       res.setHeader("Content-Disposition", "inline");
       res.setHeader("X-Content-Type-Options", "nosniff");
       return res.sendFile(path.resolve(filePath));
-    } else {
-      const fileName = path.basename(filePath);
-      res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
-      return res.sendFile(path.resolve(filePath));
     }
+
+    const fileName = path.basename(filePath);
+    res.setHeader("Content-Type", mimeTypes[ext] || "application/octet-stream");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+    return res.sendFile(path.resolve(filePath));
   } catch (error) {
     return res.status(400).json("Error");
   }
